@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrawlRats", "BrawlRats\BrawlRats.csproj", "{B139E4F6-02CC-456C-990F-437B9212990F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B139E4F6-02CC-456C-990F-437B9212990F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B139E4F6-02CC-456C-990F-437B9212990F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B139E4F6-02CC-456C-990F-437B9212990F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B139E4F6-02CC-456C-990F-437B9212990F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F4ACE9CF-C6F8-417B-8F0B-B25D26E10F8C}
+	EndGlobalSection
+EndGlobal
