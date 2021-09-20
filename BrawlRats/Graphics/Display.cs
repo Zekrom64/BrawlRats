@@ -16,26 +16,49 @@ using Tesseract.Vulkan.Graphics;
 
 namespace BrawlRats.Graphics {
 
+	/// <summary>
+	/// The display 
+	/// </summary>
 	public static class Display {
 
+		/// <summary>
+		/// The display's window system.
+		/// </summary>
 		public static IWindowSystem WindowSystem { get; private set; }
 
+		/// <summary>
+		/// The display's window.
+		/// </summary>
 		public static IWindow Window { get; private set; }
 
+		/// <summary>
+		/// The display's input system.
+		/// </summary>
 		public static IInputSystem InputSystem { get; private set; }
 
+		/// <summary>
+		/// Initializes the display.
+		/// </summary>
 		public static void Init() {
+			// Initialize GLFW
 			GLFW3.Init();
+			// Create the window and input systems
 			WindowSystem = new GLFWServiceWindowSystem();
 			InputSystem = new GLFWServiceInputSystem();
+			// Initialize the window
 			InitWindow(GraphicsType.OpenGL);
 		}
 
+		// Initializes the window using the given graphics type
 		private static void InitWindow(GraphicsType type) {
 			WindowAttributeList attribs = new() {
-				{ WindowAttributes.Resizable, false }
+				// Not resizable
+				{ WindowAttributes.Resizable, false },
+				// Initially not visible
+				{ WindowAttributes.Visible, false }
 			};
 
+			// Add respective attributes for different rendering backends
 			switch(type) {
 				case GraphicsType.OpenGL:
 					attribs.Add(GLWindowAttributes.OpenGLWindow, true);
@@ -47,16 +70,26 @@ namespace BrawlRats.Graphics {
 					throw new ArgumentException($"Unsupported graphics type \"{type}\"", nameof(type));
 			}
 
+			// Create the window
 			Window = WindowSystem.CreateWindow("Brawl Rats", 800, 600, attribs);
 
+			// On closing, game is shutting down immediately
 			Window.OnClosing += () => GameMain.Running = false;
 		}
 
+		/// <summary>
+		/// Runs event handling for the display.
+		/// </summary>
 		public static void RunEvents() {
+			// Run events
 			InputSystem.RunEvents();
+			// Sleep for 10 milliseconds
 			Thread.Sleep(10);
 		}
 
+		/// <summary>
+		/// Deinitializes the display
+		/// </summary>
 		public static void Deinit() {
 			Window.Dispose();
 			GLFW3.Terminate();

@@ -11,6 +11,7 @@ namespace BrawlRats.WinMain {
 	public static class WinMain {
 
 		public static void Main(string[] args) {
+			// Catch any exceptions, log them, and show a message box to the confused user
 			try {
 				GameMain.Main(args);
 			} catch (Exception e) {

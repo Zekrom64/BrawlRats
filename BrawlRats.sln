@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrawlRats", "BrawlRats\BrawlRats.csproj", "{B139E4F6-02CC-456C-990F-437B9212990F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrawlRats", "BrawlRats\BrawlRats.csproj", "{B139E4F6-02CC-456C-990F-437B9212990F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-Core", "TesseractEngine\TesseractEngine-Core\TesseractEngine-Core.csproj", "{80F888B2-288B-4547-A7EF-F5E76CB48B47}"
 EndProject
@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-GLFW", "Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-Vulkan", "TesseractEngine\TesseractEngine-Vulkan\TesseractEngine-Vulkan.csproj", "{FA0E4E53-23DE-4063-B04B-1772126AA349}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrawlRats-Windows", "BrawlRats-Windows\BrawlRats-Windows.csproj", "{5E7C43C0-775C-4D42-933A-1EF1AAEFACA9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrawlRats-Windows", "BrawlRats-Windows\BrawlRats-Windows.csproj", "{5E7C43C0-775C-4D42-933A-1EF1AAEFACA9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-Utilities", "TesseractEngine\TesseractEngine-Utilities\TesseractEngine-Utilities.csproj", "{F871DAE6-593E-43B0-BFFE-2C3D91D2C041}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{5E7C43C0-775C-4D42-933A-1EF1AAEFACA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E7C43C0-775C-4D42-933A-1EF1AAEFACA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E7C43C0-775C-4D42-933A-1EF1AAEFACA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F871DAE6-593E-43B0-BFFE-2C3D91D2C041}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F871DAE6-593E-43B0-BFFE-2C3D91D2C041}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F871DAE6-593E-43B0-BFFE-2C3D91D2C041}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F871DAE6-593E-43B0-BFFE-2C3D91D2C041}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
