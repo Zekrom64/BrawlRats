@@ -4,4 +4,11 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TesseractEngine\TesseractEngine-Core\TesseractEngine-Core.csproj" />
+    <ProjectReference Include="..\TesseractEngine\TesseractEngine-GLFW\TesseractEngine-GLFW.csproj" />
+    <ProjectReference Include="..\TesseractEngine\TesseractEngine-GL\TesseractEngine-GL.csproj" />
+    <ProjectReference Include="..\TesseractEngine\TesseractEngine-Vulkan\TesseractEngine-Vulkan.csproj" />
+  </ItemGroup>
+
 </Project>
