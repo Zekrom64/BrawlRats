@@ -17,11 +17,30 @@ namespace BrawlRats.Content {
 
 		public virtual void OnStopCollision(IPhysicsController other) { }
 
+		public virtual void OnCompoundHit(IPhysicsController hitter, IPhysicsController hurtee) { }
+
+		public virtual void OnStopCompoundHit(IPhysicsController hitter, IPhysicsController hurtee) { }
+
 		public virtual void OnHit(HitInfo info) => DamageStats?.DoDamage(info.Hitbox.Damage);
+
+		public virtual void OnStopHit(HitInfo info) { }
 
 		public virtual bool CanBeHit(HitInfo info) => true;
 
 		// Entity
+
+		/// <summary>
+		/// The scene that the entity is inside of. This should not be modified
+		/// except internally by scene management code.
+		/// </summary>
+		public Scene Scene { get; internal set; }
+
+		/// <summary>
+		/// If the entity is loaded into a scene, allowing it to be simulated
+		/// and drawn. Entities may exist outside of a scene but should not
+		/// be used as their state will be invalid.
+		/// </summary>
+		public bool IsLoaded => Scene != null;
 
 		public Vector2 Position {
 			get => Physics.Body.GetPosition();
@@ -34,9 +53,14 @@ namespace BrawlRats.Content {
 		[MaybeNull]
 		public DamageStats DamageStats { get; protected init; }
 
+		protected abstract void DoLogic(float delta);
 
 		public virtual void Update(UpdatePhase phase, float delta) {
-			
+			switch(phase) {
+				case UpdatePhase.LogicEntities:
+					DoLogic(delta);
+					break;
+			}
 		}
 
 	}

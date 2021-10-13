@@ -21,9 +21,15 @@ namespace BrawlRats.Content.Characters {
 		/// </summary>
 		public FactionID BaseFaction = FactionID.None;
 
+		/// <summary>
+		/// The damage stats for the character.
+		/// </summary>
+		[NotNull]
+		public DamageStats DamageStats = new();
+
 	}
 
-	public abstract class BaseCharacter : Entity {
+	public abstract class Character : Entity {
 
 		[NotNull]
 		public CharacterDef Def { get; }
@@ -45,8 +51,16 @@ namespace BrawlRats.Content.Characters {
 			}
 		}
 
-		public BaseCharacter([NotNull] CharacterDef def) {
+		public Character(Scene scene, [NotNull] CharacterDef def) {
 			Def = def;
+			DamageStats = def.DamageStats.Clone();
+		}
+
+		public override bool CanBeHit(HitInfo info) {
+			// Only characters in different factions can hit each other
+			if (info.Hitter is Character c) {
+				return Faction != c.Faction;
+			} else return true;
 		}
 
 	}

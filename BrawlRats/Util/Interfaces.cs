@@ -11,6 +11,12 @@ namespace BrawlRats.Util {
 		PhysicsCollide,
 		PhysicsStep,
 		//PhysicsBounds
+
+		LogicChoreography,
+		LogicEntities,
+
+		RenderSetup,
+		RenderDraw
 	}
 
 	public interface IUpdateable {

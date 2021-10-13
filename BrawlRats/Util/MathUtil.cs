@@ -100,6 +100,16 @@ namespace BrawlRats.Util {
 			return v;
 		}
 
+		/// <summary>
+		/// Interpolates between two values using an alpha value.
+		/// </summary>
+		/// <param name="a">First value</param>
+		/// <param name="b">Second value</param>
+		/// <param name="alpha">Alpha factor</param>
+		/// <returns>Interpolated value</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static float Interpolate(float a, float b, float alpha = 0.5f) => (a * alpha) + (b * (1 - alpha));
+
 	}
 
 }

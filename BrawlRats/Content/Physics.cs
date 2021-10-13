@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Box2DSharp.Collision;
 using Box2DSharp.Collision.Collider;
 using Box2DSharp.Collision.Shapes;
 using Box2DSharp.Common;
@@ -503,7 +504,10 @@ namespace BrawlRats.Content {
 		/// </summary>
 		public float Angle {
 			get => Body.GetAngle();
-			set => Body.SetTransform(Position, value);
+			set {
+				Body.SetTransform(Position, value);
+				aabbFlag = true;
+			}
 		}
 
 		/// <summary>
@@ -519,7 +523,10 @@ namespace BrawlRats.Content {
 		/// </summary>
 		public Transform Transform {
 			get => Body.GetTransform();
-			set => Body.SetTransform(value.Position, value.Rotation.Angle);
+			set {
+				Body.SetTransform(value.Position, value.Rotation.Angle);
+				aabbFlag = true;
+			}
 		}
 
 		/// <summary>
@@ -557,6 +564,7 @@ namespace BrawlRats.Content {
 		public Fixture AddFixture([NotNull] PhysicsFixtureDef def) {
 			Fixture fix = Body.CreateFixture(def);
 			fixtures.Add(fix);
+			aabbFlag = true;
 			return fix;
 		}
 		
@@ -567,6 +575,7 @@ namespace BrawlRats.Content {
 		public void RemoveFixture([NotNull] Fixture fix) {
 			fixtures.Remove(fix);
 			Body.DestroyFixture(fix);
+			aabbFlag = true;
 		}
 
 		/// <summary>
@@ -654,6 +663,39 @@ namespace BrawlRats.Content {
 					IncrementCompound(hit.Hitter, hit.Hurtee);
 					Controller.OnHit(hit);
 					hits.Add(hit);
+				}
+			}
+		}
+
+		public AABB ComputeAABB() {
+			AABB bb = default;
+			foreach(Fixture fixture in Fixtures) {
+				fixture.Shape.ComputeAABB(out AABB shapeBB, Transform, 0);
+				bb.Combine(shapeBB);
+			}
+			return bb;
+		}
+
+		private bool aabbFlag = true;
+		private AABB cachedAABB;
+		private float cachedBBAngle;
+
+		public AABB AABB {
+			get {
+				// If rotatable and angle changes MUST update AABB
+				if (!IsFixedRotation) {
+					if (cachedBBAngle != Angle) aabbFlag = true;
+				}
+				// Only recompute if required
+				if (aabbFlag) {
+					cachedAABB = ComputeAABB();
+					cachedBBAngle = Angle;
+					aabbFlag = false;
+					return cachedAABB;
+				// Else only update based on positional changes
+				} else {
+					Vector2 size = cachedAABB.GetExtents();
+					return new AABB(Position, size);
 				}
 			}
 		}

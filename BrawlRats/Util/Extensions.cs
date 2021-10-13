@@ -49,6 +49,11 @@ namespace BrawlRats.Util {
 			Y = v.X * rot.Sin + v.Y * rot.Cos
 		};
 
+		public static Vector2 Interpolate(this Vector2 v1, Vector2 v2, float alpha = 0.5f) => new() {
+			X = MathUtil.Interpolate(v1.X, v2.X, alpha),
+			Y = MathUtil.Interpolate(v1.Y, v2.Y, alpha)
+		};
+
 	}
 
 	/// <summary>

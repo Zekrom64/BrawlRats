@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using Tesseract.Core.Graphics;
 using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Input;
+using Tesseract.Core.Math;
 using Tesseract.GLFW;
 using Tesseract.GLFW.Services;
 using Tesseract.OpenGL;
@@ -30,6 +32,16 @@ namespace BrawlRats.Graphics {
 		/// The display's window.
 		/// </summary>
 		public static IWindow Window { get; private set; }
+
+		/// <summary>
+		/// The aspect ratio of the display.
+		/// </summary>
+		public static float AspectRatio {
+			get {
+				Vector2i size = Window.Size;
+				return ((float)size.X) / size.Y;
+			}
+		}
 
 		/// <summary>
 		/// The display's input system.
@@ -88,7 +100,7 @@ namespace BrawlRats.Graphics {
 		}
 
 		/// <summary>
-		/// Deinitializes the display
+		/// Deinitializes the display.
 		/// </summary>
 		public static void Deinit() {
 			Window.Dispose();
