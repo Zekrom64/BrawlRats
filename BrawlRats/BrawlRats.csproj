@@ -5,11 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Content\Physics.cs.old" />
+    <Compile Remove="Content\Characters\**" />
+    <EmbeddedResource Remove="Content\Characters\**" />
+    <None Remove="Content\Characters\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Content\Physics.cs.old" />
+    <None Remove="Content\Physics.cs.old" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,10 +38,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Content\Characters\" />
   </ItemGroup>
 
 </Project>
