@@ -5,113 +5,19 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using Box2DSharp.Collision;
-using Box2DSharp.Collision.Collider;
-using Box2DSharp.Collision.Shapes;
-using Box2DSharp.Common;
-using Box2DSharp.Dynamics;
-using Box2DSharp.Dynamics.Contacts;
-using BrawlRats.Util;
-using Tesseract.Core.Math;
+using Box2D.NetStandard.Collision;
+using Box2D.NetStandard.Collision.Shapes;
+using Box2D.NetStandard.Common;
+using Box2D.NetStandard.Dynamics;
+using Box2D.NetStandard.Dynamics.Bodies;
+using Box2D.NetStandard.Dynamics.Contacts;
+using Box2D.NetStandard.Dynamics.Fixtures;
+using Box2D.NetStandard.Dynamics.World;
+using Box2D.NetStandard.Dynamics.World.Callbacks;
+using BrawlRats.Content;
+using Tesseract.Core.Numerics;
 
-namespace BrawlRats.Content {
-
-	public static class Shapes {
-
-		public static PolygonShape Box(float width, float height, Vector2 center = default, float angle = 0) {
-			var shape = new PolygonShape();
-			shape.SetAsBox(width, height, center, MathUtil.ToRadians(angle));
-			return shape;
-		}
-
-		public static PolygonShape Box(float width, float height, float angle = 0) {
-			var shape = new PolygonShape();
-			shape.SetAsBox(width, height, Vector2.Zero, MathUtil.ToRadians(angle));
-			return shape;
-		}
-		
-		public static PolygonShape RegularPolygon(float radius, int sides, Vector2 center = default, float angle = 0) {
-			if (sides < 3) throw new ArgumentException("Polygon must have at least 3 sides");
-			float step = MathUtil.TwoPi / sides;
-			Vector2[] points = new Vector2[sides];
-			for(int i = 0; i < sides; i++) {
-				points[i] = center + new Vector2(MathF.Sin(angle), MathF.Cos(angle)) * radius;
-				angle += step;
-			}
-			var shape = new PolygonShape();
-			shape.Set(points);
-			return shape;
-		}
-
-		public static CircleShape Circle(float radius) => new() { Radius = radius };
-
-		public static ChainShape Chain(Vector2[] points) {
-			if (points.Length < 3) throw new ArgumentException("Chain must have at least 3 points");
-			var shape = new ChainShape();
-			shape.CreateChain(points[1..^1], points.Length - 2, points[0], points[^0]);
-			return shape;
-		}
-
-		public static ChainShape Chain(float segmentLength, int segments) {
-			if (segments < 2) throw new ArgumentException("Chain must have at least 2 segments");
-			Vector2[] points = new Vector2[segments + 1];
-			points[0] = Vector2.Zero;
-			for (int i = 0; i < segments; i++) points[i + 1] = points[i] - new Vector2(0, segmentLength);
-			return Chain(points);
-		}
-
-		public static ChainShape ChainLoop(Vector2[] points) {
-			if (points.Length < 3) throw new ArgumentException("Chain must have at least 3 points");
-			var shape = new ChainShape();
-			shape.CreateLoop(points);
-			return shape;
-		}
-
-		public static ChainShape ChainLoop(float radius, int segments, float angle = 0) {
-			if (segments < 3) throw new ArgumentException("Chain loop must have at least 3 segments");
-			Vector2[] points = new Vector2[segments];
-			float step = MathUtil.TwoPi / segments;
-			for(int i = 0; i < segments; i++) {
-				points[i] = new Vector2(MathF.Sin(angle), MathF.Cos(angle)) * radius;
-				angle += step;
-			}
-			return ChainLoop(points);
-		}
-
-		public static EdgeShape Edge(Vector2 v1, Vector2 v2) {
-			EdgeShape shape = new();
-			shape.SetTwoSided(v1, v2);
-			return shape;
-		}
-
-	}
-
-	/// <summary>
-	/// Bitmask of collision categories.
-	/// </summary>
-	[Flags]
-	public enum CollisionMask : ushort {
-		/// <summary>
-		/// Scene terrain category.
-		/// </summary>
-		SceneTerrain = 0x0001,
-
-		/// <summary>
-		/// Player category.
-		/// </summary>
-		Players = 0x0002,
-		/// <summary>
-		/// Object category.
-		/// </summary>
-		Objects = 0x0004
-	}
-
-	/// <summary>
-	/// Enumeration of collision groups
-	/// </summary>
-	public enum CollisionGroup : short {
-		Default = 0
-	}
+namespace BrawlRats.Physics {
 
 	/// <summary>
 	/// Physics fixture definition.
@@ -155,7 +61,7 @@ namespace BrawlRats.Content {
 		/// <summary>
 		/// The shape of the fixture.
 		/// </summary>
-		public Shape Shape;
+		public required Shape Shape { get; init; }
 
 		// Coefficient of friction, default regular friction
 		/// <summary>
@@ -163,24 +69,17 @@ namespace BrawlRats.Content {
 		/// </summary>
 		public float Friction = 1.0f;
 
-		// Threshold in speed above which restitution is applied
-		/// <summary>
-		/// The velocity threshold above which to apply <see cref="Restitution"/> to collisions.
-		/// </summary>
-		public float RestitutionThreshold = 0.0f;
-
-		public static implicit operator FixtureDef([NotNull] PhysicsFixtureDef def) => new() {
-			Density = def.Density,
-			Filter = new() {
-				CategoryBits = (ushort)def.CollisionCategory,
-				MaskBits = (ushort)def.CollisionMask,
-				GroupIndex = (short)def.CollisionGroup
+		public static implicit operator FixtureDef(PhysicsFixtureDef def) => new() {
+			density = def.Density,
+			filter = new() {
+				categoryBits = (ushort)def.CollisionCategory,
+				maskBits = (ushort)def.CollisionMask,
+				groupIndex = (short)def.CollisionGroup
 			},
-			IsSensor = def.IsSensor,
-			Restitution = def.Restitution,
-			Shape = def.Shape,
-			Friction = def.Friction,
-			RestitutionThreshold = def.RestitutionThreshold
+			isSensor = def.IsSensor,
+			restitution = def.Restitution,
+			shape = def.Shape,
+			friction = def.Friction
 		};
 
 	}
@@ -193,8 +92,7 @@ namespace BrawlRats.Content {
 		/// <summary>
 		/// The list of fixtures that are part of this body.
 		/// </summary>
-		[NotNull]
-		public PhysicsFixtureDef[] Fixtures;
+		public required PhysicsFixtureDef[] Fixtures { get; init; }
 
 		/// <summary>
 		/// The initial angle of the body.
@@ -214,7 +112,7 @@ namespace BrawlRats.Content {
 		/// <summary>
 		/// The type of body.
 		/// </summary>
-		public BodyType BodyType = BodyType.DynamicBody;
+		public BodyType BodyType = BodyType.Dynamic;
 
 		/// <summary>
 		/// If the body is a "bullet" which should be simulated more carefully for collisions.
@@ -264,29 +162,27 @@ namespace BrawlRats.Content {
 		/// <summary>
 		/// The collidable group of hitboxes.
 		/// </summary>
-		[MaybeNull]
-		public ICollidable<HitboxInfo> Hitboxes = null;
+		public ICollidable<HitboxInfo>? Hitboxes = null;
 
 		/// <summary>
 		/// The collidable group of hurtboxes.
 		/// </summary>
-		[MaybeNull]
-		public ICollidable<HurtboxInfo> Hurtboxes = null;
+		public ICollidable<HurtboxInfo>? Hurtboxes = null;
 
-		public static implicit operator BodyDef([NotNull] PhysicsBodyDef def) => new() {
-			Angle = def.InitialAngle,
-			AngularDamping = def.AngularDampening,
-			AngularVelocity = def.InitialAngularVelocity,
-			BodyType = def.BodyType,
-			Bullet = def.IsBullet,
-			FixedRotation = def.HasFixedRotation,
-			LinearDamping = def.LinearDampening,
-			LinearVelocity = def.InitialVelocity,
-			Position = def.InitialPosition,
-			Enabled = def.Enabled,
-			AllowSleep = def.AllowSleep,
-			Awake = def.Awake,
-			GravityScale = def.GravityScale
+		public static implicit operator BodyDef(PhysicsBodyDef def) => new() {
+			angle = def.InitialAngle,
+			angularDamping = def.AngularDampening,
+			angularVelocity = def.InitialAngularVelocity,
+			type = def.BodyType,
+			bullet = def.IsBullet,
+			fixedRotation = def.HasFixedRotation,
+			linearDamping = def.LinearDampening,
+			linearVelocity = def.InitialVelocity,
+			position = def.InitialPosition,
+			enabled = def.Enabled,
+			allowSleep = def.AllowSleep,
+			awake = def.Awake,
+			gravityScale = def.GravityScale
 		};
 
 	}
@@ -299,22 +195,22 @@ namespace BrawlRats.Content {
 		/// <summary>
 		/// The controller doing the hitting.
 		/// </summary>
-		public IPhysicsController Hitter { get; init; }
+		public required IPhysicsController Hitter { get; init; }
 
 		/// <summary>
 		/// The hitbox that is hitting.
 		/// </summary>
-		public HitboxInfo Hitbox { get; init; }
+		public required HitboxInfo Hitbox { get; init; }
 
 		/// <summary>
 		/// The controller being hit.
 		/// </summary>
-		public IPhysicsController Hurtee { get; init; }
+		public required IPhysicsController Hurtee { get; init; }
 
 		/// <summary>
 		/// The hurtbax that is being hit.
 		/// </summary>
-		public HurtboxInfo Hurtbox { get; init; }
+		public required HurtboxInfo Hurtbox { get; init; }
 
 	}
 
@@ -382,9 +278,9 @@ namespace BrawlRats.Content {
 	public class PhysicsBody : IDisposable {
 
 		/// <summary>
-		/// The physics this body belongs to.
+		/// The physics world this body belongs to.
 		/// </summary>
-		public Physics Physics { get; }
+		public PhysicsWorld Physics { get; }
 
 		/// <summary>
 		/// The body associated with this instance.
@@ -405,49 +301,49 @@ namespace BrawlRats.Content {
 		/// <summary>
 		/// The collidable for this bodies hitbox.
 		/// </summary>
-		public ICollidable<HitboxInfo> Hitboxes { get; }
+		public ICollidable<HitboxInfo>? Hitboxes { get; }
 
 		/// <summary>
 		/// The collidable for this bodies hurtbox.
 		/// </summary>
-		public ICollidable<HurtboxInfo> Hurtboxes { get; }
+		public ICollidable<HurtboxInfo>? Hurtboxes { get; }
 
 		/// <summary>
 		/// The scalar inerta of this body.
 		/// </summary>
-		public float Intertia => Body.Inertia;
+		public float Intertia => Body.GetInertia();
 
 		/// <summary>
 		/// The linear dampening applied to this body.
 		/// </summary>
 		public float LinearDampening {
-			get => Body.LinearDamping;
-			set => Body.LinearDamping = value;
+			get => Body.GetLinearDamping();
+			set => Body.SetLinearDampling(value);
 		}
 
 		/// <summary>
 		/// The angular dampening applied to this body.
 		/// </summary>
 		public float AngularDampening {
-			get => Body.AngularVelocity;
-			set => Body.AngularDamping = value;
+			get => Body.GetAngularVelocity();
+			set => Body.SetAngularDamping(value);
 		}
 
 		/// <summary>
 		/// The mass of this body.
 		/// </summary>
-		public float Mass => Body.Mass;
+		public float Mass => Body.GetMass();
 
 		/// <summary>
 		/// The type of this body.
 		/// </summary>
-		public BodyType BodyType => Body.BodyType;
+		public BodyType BodyType => Body.Type();
 
 		/// <summary>
 		/// The linear velocity of this body.
 		/// </summary>
 		public Vector2 Velocity {
-			get => Body.LinearVelocity;
+			get => Body.GetLinearVelocity();
 			set => Body.SetLinearVelocity(value);
 		}
 
@@ -455,7 +351,7 @@ namespace BrawlRats.Content {
 		/// The angular velocity of this body.
 		/// </summary>
 		public float AngularVelocity {
-			get => Body.AngularVelocity;
+			get => Body.GetAngularVelocity();
 			set => Body.SetAngularVelocity(value);
 		}
 
@@ -463,40 +359,40 @@ namespace BrawlRats.Content {
 		/// If the body is allowed to sleep.
 		/// </summary>
 		public bool IsSleepingAllowed {
-			get => Body.IsSleepingAllowed;
-			set => Body.IsSleepingAllowed = value;
+			get => Body.IsSleepingAllowed();
+			set => Body.SetSleepingAllowed(value);
 		}
 
 		/// <summary>
 		/// If the body is awake.
 		/// </summary>
 		public bool IsAwake {
-			get => Body.IsAwake;
-			set => Body.IsAwake = value;
+			get => Body.IsAwake();
+			set => Body.SetAwake(value);
 		}
 
 		/// <summary>
 		/// If dynamic physics are enabled for this body.
 		/// </summary>
 		public bool IsEnabled {
-			get => Body.IsEnabled;
-			set => Body.IsEnabled = value;
+			get => Body.IsEnabled();
+			set => Body.SetEnabled(value);
 		}
 		
 		/// <summary>
 		/// If the body has a fixed rotation.
 		/// </summary>
 		public bool IsFixedRotation {
-			get => Body.IsFixedRotation;
-			set => Body.IsFixedRotation = value;
+			get => Body.IsFixedRotation();
+			set => Body.SetFixedRotation(value);
 		}
 
 		/// <summary>
 		/// If the body is considered a "bullet" with more precise stepping.
 		/// </summary>
 		public bool IsBullet {
-			get => Body.IsBullet;
-			set => Body.IsBullet = value;
+			get => Body.IsBullet();
+			set => Body.SetBullet(value);
 		}
 
 		/// <summary>
@@ -524,7 +420,7 @@ namespace BrawlRats.Content {
 		public Transform Transform {
 			get => Body.GetTransform();
 			set {
-				Body.SetTransform(value.Position, value.Rotation.Angle);
+				Body.SetTransform(value.p, value.GetAngle());
 				aabbFlag = true;
 			}
 		}
@@ -540,13 +436,13 @@ namespace BrawlRats.Content {
 			set => Body.SetMassData(value);
 		}
 
-		public PhysicsBody([NotNull] Physics phys, [NotNull] PhysicsBodyDef def, [NotNull] IPhysicsController controller) {
+		public PhysicsBody(PhysicsWorld phys, PhysicsBodyDef def, IPhysicsController controller) {
 			Physics = phys;
 			Controller = controller;
 			phys.bodies.Add(this);
 
 			Body = phys.World.CreateBody(def);
-			Body.UserData = this; // Userdata stores a reference to the containing structure
+			Body.SetUserData(this);
 			foreach (var fixdef in def.Fixtures) fixtures.Add(Body.CreateFixture(fixdef));
 		}
 
@@ -705,7 +601,7 @@ namespace BrawlRats.Content {
 	/// <summary>
 	/// A physics instance manages a world of bodies with the effects of physics applied to them.
 	/// </summary>
-	public class Physics : IContactListener {
+	public class PhysicsWorld : ContactListener {
 
 		/// <summary>
 		/// The time step to use for physics simulation.
@@ -733,7 +629,7 @@ namespace BrawlRats.Content {
 		// The list of bodies in this physics world
 		internal readonly List<PhysicsBody> bodies = new();
 
-		public Physics() {
+		public PhysicsWorld() {
 			World.SetContactListener(this);
 		}
 
@@ -759,55 +655,47 @@ namespace BrawlRats.Content {
 			}
 		}
 
-		public void Update(UpdatePhase phase, float delta) {
-			switch (phase) {
-				case UpdatePhase.PhysicsStep:
-					timeAccum += delta;
-					// Step world using acquired time
-					while (timeAccum > TimeStep) {
-						World.Step(TimeStep, VelocityIterations, PositionIterations);
-						timeAccum -= TimeStep;
-					}
-					break;
-				case UpdatePhase.PhysicsCollide:
-					// Reset the hit lists for each body
-					foreach (PhysicsBody body in bodies) body.newhits.Clear();
-					// Iterate each pair of bodies
-					for(int i = 0; i < bodies.Count - 1; i++) {
-						PhysicsBody body1 = bodies[i];
-						for(int j = i + 1; j < bodies.Count; j++) {
-							PhysicsBody body2 = bodies[j];
-							// Test for hits from the first body to the second
-							TestHit(body1, body2);
-							// Test for hits from the second body to the first
-							TestHit(body2, body1);
-						}
-					}
-					// Update hit lists for each body
-					foreach (PhysicsBody body in bodies) body.UpdateHits();
-					break;
-				default:
-					break;
+		public void Update(float delta) {
+			timeAccum += delta;
+			// Step world using acquired time
+			while (timeAccum > TimeStep) {
+				World.Step(TimeStep, VelocityIterations, PositionIterations);
+				timeAccum -= TimeStep;
 			}
+			// Reset the hit lists for each body
+			foreach (PhysicsBody body in bodies) body.newhits.Clear();
+			// Iterate each pair of bodies
+			for(int i = 0; i < bodies.Count - 1; i++) {
+				PhysicsBody body1 = bodies[i];
+				for(int j = i + 1; j < bodies.Count; j++) {
+					PhysicsBody body2 = bodies[j];
+					// Test for hits from the first body to the second
+					TestHit(body1, body2);
+					// Test for hits from the second body to the first
+					TestHit(body2, body1);
+				}
+			}
+			// Update hit lists for each body
+			foreach (PhysicsBody body in bodies) body.UpdateHits();
 		}
 
-		public void BeginContact(Contact contact) {
+		public override void BeginContact(in Contact contact) {
 			PhysicsBody body1 = (PhysicsBody)contact.FixtureA.Body.UserData;
 			PhysicsBody body2 = (PhysicsBody)contact.FixtureB.Body.UserData;
 			body1.Controller.OnCollision(body2.Controller);
 			body2.Controller.OnCollision(body1.Controller);
 		}
 
-		public void EndContact(Contact contact) {
+		public override void EndContact(in Contact contact) {
 			PhysicsBody body1 = (PhysicsBody)contact.FixtureA.Body.UserData;
 			PhysicsBody body2 = (PhysicsBody)contact.FixtureB.Body.UserData;
 			body1.Controller.OnStopCollision(body2.Controller);
 			body2.Controller.OnStopCollision(body1.Controller);
 		}
 
-		public void PreSolve(Contact contact, in Manifold oldManifold) { }
+		public override void PreSolve(in Contact contact, in Manifold oldManifold) { }
 
-		public void PostSolve(Contact contact, in ContactImpulse impulse) { }
+		public override void PostSolve(in Contact contact, in ContactImpulse impulse) { }
 
 	}
 }

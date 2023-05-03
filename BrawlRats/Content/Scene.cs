@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BrawlRats.Util;
 using BrawlRats.Content.Choreography;
+using BrawlRats.Physics;
 
 namespace BrawlRats.Content {
 
@@ -27,12 +28,11 @@ namespace BrawlRats.Content {
 
 	}
 
-	public abstract class Scene : IUpdateable {
+	public abstract class Scene {
 
-		[NotNull]
-		public ISceneChoreographer Choreographer { get; protected set; }
+		public required ISceneChoreographer Choreographer { get; init; }
 
-		public Physics Physics { get; } = new();
+		public PhysicsWorld Physics { get; } = new();
 
 		public readonly List<Entity> Entities = new();
 
@@ -44,19 +44,10 @@ namespace BrawlRats.Content {
 			Choreographer.Initialize();
 		}
 
-		public void Update(UpdatePhase phase, float delta) {
-			switch(phase) {
-				case UpdatePhase.LogicChoreography:
-					Choreographer.StepLogic(delta);
-					break;
-				case UpdatePhase.PhysicsStep:
-				case UpdatePhase.PhysicsCollide:
-					Physics.Update(phase, delta);
-					break;
-				case UpdatePhase.LogicEntities:
-					foreach (Entity e in Entities) e.Update(phase, delta);
-					break;
-			}
+		public void Update(float delta) {
+			Choreographer.StepLogic(delta);
+			Physics.Update(delta);
+			foreach (Entity e in Entities) e.Update(delta);
 		}
 	}
 

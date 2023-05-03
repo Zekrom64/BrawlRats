@@ -4,17 +4,27 @@ using System.Numerics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Tesseract.Core.Math;
+using Tesseract.Core.Numerics;
 using BrawlRats.Util;
 using BrawlRats.Content;
-using Box2DSharp.Collision;
+using Box2D.NetStandard.Collision;
+using System.Runtime.InteropServices;
 
 namespace BrawlRats.Graphics {
 	
+	/// <summary>
+	/// A camera view describes the 
+	/// </summary>
 	public struct CameraView {
 
+		/// <summary>
+		/// The aspect ratio of the camera view
+		/// </summary>
 		public float AspectRatio => Area.Size.X / Area.Size.Y;
 
+		/// <summary>
+		/// The screen area the camera view covers
+		/// </summary>
 		public Rectf Area;
 
 		public static implicit operator CameraView(Rectf area) => new() { Area = area };
@@ -29,6 +39,14 @@ namespace BrawlRats.Graphics {
 			Matrix4x4.CreateOrthographic(c.Area.Size.X, c.Area.Size.Y, 0, 1) *
 			Matrix4x4.CreateTranslation(c.Area.Position.X, c.Area.Position.Y, 0);
 
+		/// <summary>
+		/// Interpolates between two different camera views based on a scaling factor, where
+		/// 0 corresponds to the first view and 1 corresponds to the second view.
+		/// </summary>
+		/// <param name="a">First view to interpolate</param>
+		/// <param name="b">Second view to interpolate</param>
+		/// <param name="alpha">The interpolation factor</param>
+		/// <returns>The interpolated view between the two</returns>
 		public static CameraView Interpolate(CameraView a, CameraView b, float alpha = 0.5f) {
 			return new Rectf() {
 				Position = a.Area.Position.Interpolate(b.Area.Position, alpha),
@@ -36,6 +54,11 @@ namespace BrawlRats.Graphics {
 			};
 		}
 
+		/// <summary>
+		/// Adjusts this camera view to fit the given minimum size, centered
+		/// on the original view.
+		/// </summary>
+		/// <param name="minSize">The minimum view size</param>
 		public void AdjustForMinSize(Vector2 minSize) {
 			if (minSize.X > Area.Size.X) {
 				Area.Position.X -= (minSize.X - Area.Size.X) * 0.5f;
@@ -47,6 +70,10 @@ namespace BrawlRats.Graphics {
 			}
 		}
 
+		/// <summary>
+		/// Corrects this camera view to match the given aspect ratio.
+		/// </summary>
+		/// <param name="ratio">Requested aspect ratio</param>
 		public void CorrectForAspectRatio(float ratio) {
 			float aspect = AspectRatio;
 			if (aspect > ratio) {
@@ -60,7 +87,7 @@ namespace BrawlRats.Graphics {
 
 	}
 
-	public struct CameraPan {
+	public struct CameraMove {
 
 		public CameraView Target;
 
@@ -68,12 +95,12 @@ namespace BrawlRats.Graphics {
 
 		public bool IsDone => RemainingTime <= 0;
 
-		public CameraPan(CameraView target, float time) {
+		public CameraMove(CameraView target, float time) {
 			Target = target;
 			RemainingTime = time;
 		}
 
-		public bool DoPan(ref CameraView view, float delta) {
+		public bool DoMove(ref CameraView view, float delta) {
 			// If stepped over the remaining time, set to the target and clear time
 			if (delta > RemainingTime) {
 				RemainingTime = 0;
@@ -107,7 +134,7 @@ namespace BrawlRats.Graphics {
 		Contain
 	}
 
-	public class CameraController : IUpdateable {
+	public class CameraController {
 
 		public float AspectRatio { get; set; }
 
@@ -117,21 +144,21 @@ namespace BrawlRats.Graphics {
 
 		public CameraView CurrentView;
 
-		public CameraPan CurrentPan;
+		public CameraMove CurrentMove;
 
-		public Entity TrackedEntity { get; set; }
+		public Entity? TrackedEntity { get; set; }
 
-		private readonly HashSet<Entity> containedEntities = new();
+		private readonly List<Entity> containedEntities = new();
 		public ICollection<Entity> ContainedEntities => containedEntities;
 
 		private void UpdateFollow() {
-			CurrentPan.Target = TrackedEntity.Physics.AABB;
+			CurrentMove.Target = TrackedEntity.Physics.AABB;
 		}
 
 		private void UpdateContain() {
-			AABB bb = default;
-			foreach (Entity e in containedEntities) bb.Combine(e.Physics.AABB);
-			CurrentPan.Target = bb;
+			if (containedEntities.Count > 0) {
+				
+			}
 		}
 
 		private void UpdateCamera(float delta) {
@@ -144,18 +171,11 @@ namespace BrawlRats.Graphics {
 					UpdateContain();
 					break;
 			}
-			CurrentPan.DoPan(ref CurrentView, delta);
+			CurrentMove.DoMove(ref CurrentView, delta);
 			CurrentView.AdjustForMinSize(MinSize);
 			CurrentView.CorrectForAspectRatio(AspectRatio);
 		}
 
-		public void Update(UpdatePhase phase, float delta) {
-			switch(phase) {
-				case UpdatePhase.RenderSetup:
-					UpdateCamera(delta);
-					break;
-			}
-		}
 	}
 
 }

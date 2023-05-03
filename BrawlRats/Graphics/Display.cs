@@ -8,13 +8,10 @@ using System.Threading.Tasks;
 using Tesseract.Core.Graphics;
 using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Input;
-using Tesseract.Core.Math;
-using Tesseract.GLFW;
-using Tesseract.GLFW.Services;
+using Tesseract.Core.Numerics;
+using Tesseract.SDL;
+using Tesseract.SDL.Services;
 using Tesseract.OpenGL;
-using Tesseract.OpenGL.Graphics;
-using Tesseract.Vulkan;
-using Tesseract.Vulkan.Graphics;
 
 namespace BrawlRats.Graphics {
 
@@ -53,34 +50,24 @@ namespace BrawlRats.Graphics {
 		/// </summary>
 		public static void Init() {
 			// Initialize GLFW
-			GLFW3.Init();
+			SDL2.Init(SDLSubsystems.Video | SDLSubsystems.Joystick | SDLSubsystems.GameController);
 			// Create the window and input systems
-			WindowSystem = new GLFWServiceWindowSystem();
-			InputSystem = new GLFWServiceInputSystem();
+			WindowSystem = new SDLServiceWindowSystem();
+			InputSystem = new SDLServiceInputSystem();
 			// Initialize the window
-			InitWindow(GraphicsType.OpenGL);
+			InitWindow();
 		}
 
 		// Initializes the window using the given graphics type
-		private static void InitWindow(GraphicsType type) {
+		private static void InitWindow() {
 			WindowAttributeList attribs = new() {
 				// Not resizable
 				{ WindowAttributes.Resizable, false },
 				// Initially not visible
-				{ WindowAttributes.Visible, false }
+				{ WindowAttributes.Visible, false },
+				// Using OpenGL
+				{ GLWindowAttributes.OpenGLWindow, true }
 			};
-
-			// Add respective attributes for different rendering backends
-			switch(type) {
-				case GraphicsType.OpenGL:
-					attribs.Add(GLWindowAttributes.OpenGLWindow, true);
-					break;
-				case GraphicsType.Vulkan:
-					attribs.Add(VKWindowAttributes.VulkanWindow, true);
-					break;
-				default:
-					throw new ArgumentException($"Unsupported graphics type \"{type}\"", nameof(type));
-			}
 
 			// Create the window
 			Window = WindowSystem.CreateWindow("Brawl Rats", 800, 600, attribs);
@@ -104,7 +91,7 @@ namespace BrawlRats.Graphics {
 		/// </summary>
 		public static void Deinit() {
 			Window.Dispose();
-			GLFW3.Terminate();
+			SDL2.Quit();
 		}
 
 	}

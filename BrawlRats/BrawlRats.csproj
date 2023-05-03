@@ -1,26 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Content\Physics.cs.old" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="Content\Physics.cs.old" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\TesseractEngine\TesseractEngine-Core\TesseractEngine-Core.csproj" />
-    <ProjectReference Include="..\TesseractEngine\TesseractEngine-GLFW\TesseractEngine-GLFW.csproj" />
     <ProjectReference Include="..\TesseractEngine\TesseractEngine-GL\TesseractEngine-GL.csproj" />
-    <ProjectReference Include="..\TesseractEngine\TesseractEngine-Vulkan\TesseractEngine-Vulkan.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Box2DSharp" Version="0.6.0" />
+    <ProjectReference Include="..\TesseractEngine\TesseractEngine-SDL2-OpenGL\TesseractEngine-SDL2-OpenGL.csproj" />
+    <ProjectReference Include="..\TesseractEngine\TesseractEngine-SDL2\TesseractEngine-SDL2.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,6 +29,10 @@
 
   <ItemGroup>
     <Folder Include="Content\Characters\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Box2D.NetStandard" Version="2.4.7-alpha" />
   </ItemGroup>
 
 </Project>

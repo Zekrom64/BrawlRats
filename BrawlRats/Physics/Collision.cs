@@ -5,12 +5,40 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using Box2DSharp.Collision;
-using Box2DSharp.Collision.Shapes;
-using Box2DSharp.Common;
+using Box2D.NetStandard.Collision;
+using Box2D.NetStandard.Collision.Shapes;
+using Box2D.NetStandard.Common;
 using BrawlRats.Util;
+using Tesseract.Core.Collections;
 
-namespace BrawlRats.Content {
+namespace BrawlRats.Physics {
+
+	/// <summary>
+	/// Bitmask of collision categories.
+	/// </summary>
+	[Flags]
+	public enum CollisionMask : ushort {
+		/// <summary>
+		/// Scene terrain category.
+		/// </summary>
+		SceneTerrain = 0x0001,
+
+		/// <summary>
+		/// Player category.
+		/// </summary>
+		Players = 0x0002,
+		/// <summary>
+		/// Object category.
+		/// </summary>
+		Objects = 0x0004
+	}
+
+	/// <summary>
+	/// Enumeration of collision groups
+	/// </summary>
+	public enum CollisionGroup : short {
+		Default = 0
+	}
 
 	/// <summary>
 	/// A collider is a single instance that can detect overlap with other colliders.
@@ -101,10 +129,13 @@ namespace BrawlRats.Content {
 		public IReadOnlyCollection<Collider<T>> Colliders => colliders;
 
 		private bool CanCollide<T2>(ICollidable<T2> other, Transform t1 = default, Transform t2 = default) {
+			throw new NotImplementedException();
+			/*
 			// If either count is zero there can never be a collision
 			if (colliders.Count == 0 || other.Colliders.Count == 0) return false;
 			// AABBs must overlap for collider lists to overlap
 			AABB bb1, bb2;
+
 			// Adjust AABB for potential rotation
 			float angle1 = MathUtil.ClampRadians(t1.Rotation.Angle);
 			float angle2 = MathUtil.ClampRadians(t2.Rotation.Angle);
@@ -117,9 +148,12 @@ namespace BrawlRats.Content {
 				Shapes.Box(size.X, size.Y, 0).ComputeAABB(out bb2, t2, 0);
 			} else bb2 = AABB.Offset(t2.Position);
 			return CollisionUtils.TestOverlap(bb1, bb2);
+			*/
 		}
 
 		public bool Intersects<T2>(ICollidable<T2> other, Transform t1 = default, Transform t2 = default) {
+			throw new NotImplementedException();
+			/*
 			if (!CanCollide(other, t1, t2)) return false;
 
 			float angle1 = MathUtil.ClampRadians(t1.Rotation.Angle);
@@ -141,9 +175,12 @@ namespace BrawlRats.Content {
 				}
 			}
 			return false;
+			*/
 		}
 
 		public bool GatherIntersects<T2>(ICollidable<T2> other, Action<T, T2> consumer, Transform t1 = default, Transform t2 = default) {
+			throw new NotImplementedException();
+			/*
 			if (!CanCollide(other, t1, t2)) return false;
 
 			bool collision = false;
@@ -170,6 +207,7 @@ namespace BrawlRats.Content {
 			}
 
 			return collision;
+			*/
 		}
 
 		// ICollection<Collider<T>>
@@ -236,7 +274,7 @@ namespace BrawlRats.Content {
 
 		public IReadOnlyCollection<Collider<T>> Colliders {
 			get {
-				if (Frames.Count == 0) return Collections<Collider<T>>.Empty;
+				if (Frames.Count == 0) return Collection<Collider<T>>.EmptyList;
 				else return Frames[CurrentFrame].Colliders;
 			}
 		}

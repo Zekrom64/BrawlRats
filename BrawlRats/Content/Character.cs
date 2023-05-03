@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics.CodeAnalysis;
+using BrawlRats.Physics;
 
 namespace BrawlRats.Content.Characters {
 	
@@ -24,14 +25,12 @@ namespace BrawlRats.Content.Characters {
 		/// <summary>
 		/// The damage stats for the character.
 		/// </summary>
-		[NotNull]
 		public DamageStats DamageStats = new();
 
 	}
 
 	public abstract class Character : Entity {
 
-		[NotNull]
 		public CharacterDef Def { get; }
 
 		/// <summary>
@@ -51,7 +50,7 @@ namespace BrawlRats.Content.Characters {
 			}
 		}
 
-		public Character(Scene scene, [NotNull] CharacterDef def) {
+		public Character(CharacterDef def) {
 			Def = def;
 			DamageStats = def.DamageStats.Clone();
 		}

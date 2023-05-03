@@ -18,16 +18,49 @@ namespace BrawlRats.Content {
 
 		// 5E-styled damage types
 
+		/// <summary>
+		/// Slashing damage; done by swords or cutting implements.
+		/// </summary>
 		Slashing,
+		/// <summary>
+		/// Piercing damage; done by bullets, spears, darts, etc.
+		/// </summary>
 		Piercing,
+		/// <summary>
+		/// Bludgeoning damage; done by clubs or blunt objects.
+		/// </summary>
 		Bludgeoning,
+		/// <summary>
+		/// Acid damage.
+		/// </summary>
 		Acid,
+		/// <summary>
+		/// Fire damage; done directly by fire or by excessive heat.
+		/// </summary>
 		Fire,
+		/// <summary>
+		/// Cold damage; done by extreme cold.
+		/// </summary>
 		Cold,
+		/// <summary>
+		/// Radiant damage; done by bright light or radiation.
+		/// </summary>
 		Radiant,
+		/// <summary>
+		/// Lighting damage; done by electrical shock.
+		/// </summary>
 		Lightning,
+		/// <summary>
+		/// Thunder damage; done by concussive blast waves.
+		/// </summary>
 		Thunder,
+		/// <summary>
+		/// Force damage; done by raw force such as being crushed.
+		/// </summary>
 		Force,
+		/// <summary>
+		/// Psychic damage; mental trauma that manifests as physical harm.
+		/// </summary>
 		Psychic
 	}
 
@@ -94,7 +127,7 @@ namespace BrawlRats.Content {
 		/// </summary>
 		public IDictionary<DamageType, float> DamageMods {
 			get {
-				if (dmgmods == null) dmgmods = new();
+				dmgmods ??= new();
 				return dmgmods;
 			}
 		}
@@ -172,11 +205,31 @@ namespace BrawlRats.Content {
 		/// </summary>
 		Undefined = 0,
 
+		// Body parts
+
+		/// <summary>
+		/// The head body part.
+		/// </summary>
 		Head,
+		/// <summary>
+		/// The torso body part.
+		/// </summary>
 		Torso,
+		/// <summary>
+		/// The left arm body part.
+		/// </summary>
 		LeftArm,
+		/// <summary>
+		/// The right arm body part.
+		/// </summary>
 		RightArm,
+		/// <summary>
+		/// The left leg body part.
+		/// </summary>
 		LeftLeg,
+		/// <summary>
+		/// The right leg body part.
+		/// </summary>
 		RightLeg
 	}
 

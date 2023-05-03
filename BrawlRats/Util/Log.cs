@@ -30,7 +30,7 @@ namespace BrawlRats.Util {
 		}
 
 		private static void LogText(string text) {
-			text.Split('\n').ForEach(LogLine);
+			foreach(var line in text.Split('\n')) LogLine(line);
 			logFile.FlushAsync();
 		}
 
@@ -39,7 +39,7 @@ namespace BrawlRats.Util {
 		/// <see cref="object.ToString()"/> method.
 		/// </summary>
 		/// <param name="o">Object to print</param>
-		public static void Print(object o) => LogText(o.ToString());
+		public static void Print(object? o) => LogText(o?.ToString() ?? "null");
 
 	}
 }

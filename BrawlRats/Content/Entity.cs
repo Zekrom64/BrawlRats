@@ -5,11 +5,13 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Box2D.NetStandard.Collision;
+using BrawlRats.Physics;
 using BrawlRats.Util;
 
 namespace BrawlRats.Content {
 
-	public abstract class Entity : IUpdateable, IPhysicsController {
+	public abstract class Entity : IPhysicsController {
 
 		// IPhysicsController
 
@@ -30,10 +32,9 @@ namespace BrawlRats.Content {
 		// Entity
 
 		/// <summary>
-		/// The scene that the entity is inside of. This should not be modified
-		/// except internally by scene management code.
+		/// The scene that the entity is inside of.
 		/// </summary>
-		public Scene Scene { get; internal set; }
+		public Scene? Scene { get; internal set; }
 
 		/// <summary>
 		/// If the entity is loaded into a scene, allowing it to be simulated
@@ -42,25 +43,27 @@ namespace BrawlRats.Content {
 		/// </summary>
 		public bool IsLoaded => Scene != null;
 
-		public Vector2 Position {
-			get => Physics.Body.GetPosition();
-			set => Physics.Body.SetTransform(value, Physics.Body.GetAngle());
+		private AABB boundingBox = default;
+
+		public AABB BoundingBox {
+			get => Physics?.AABB ?? boundingBox;
+			set => boundingBox = value;
 		}
 
-		[NotNull]
-		public PhysicsBody Physics { get; protected init; }
+		public Vector2 Position {
+			get => Physics?.Body?.Position?? default;
+			set => Physics?.Body?.SetTransform(value, Physics.Body.GetAngle());
+		}
 
-		[MaybeNull]
-		public DamageStats DamageStats { get; protected init; }
+		public PhysicsBody? Physics { get; protected init; }
+
+		public DamageStats? DamageStats { get; protected init; }
+
 
 		protected abstract void DoLogic(float delta);
 
-		public virtual void Update(UpdatePhase phase, float delta) {
-			switch(phase) {
-				case UpdatePhase.LogicEntities:
-					DoLogic(delta);
-					break;
-			}
+		public virtual void Update(float delta) {
+			DoLogic(delta);
 		}
 
 	}
