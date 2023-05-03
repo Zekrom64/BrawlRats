@@ -12,12 +12,12 @@ namespace BrawlRats.Content.Scenes {
 
 		public SceneChoreographerNewOldStreet(SceneNewOldStreet scene) : base(scene) { }
 
-		protected override void PrepareScene(SceneNewOldStreet scene) {
-			scene.VFX.BackgroundColor = Vector3.Zero;
-			scene.VFX.Opacity = 0;
+		protected override void PrepareScene() {
+			Scene.VFX.BackgroundColor = Vector3.Zero;
+			Scene.VFX.Opacity = 0;
 		}
 
-		protected override IEnumerator<IChoreographyAction<SceneNewOldStreet>> RunScene(SceneNewOldStreet scene) {
+		protected override IEnumerable<IChoreographyAction<SceneNewOldStreet>> RunScene() {
 			yield return FadeIn(2);
 		}
 
