@@ -16,7 +16,7 @@ using Tesseract.OpenGL;
 namespace BrawlRats.Graphics {
 
 	/// <summary>
-	/// The display 
+	/// The display class manages the state of the window the game is rendered to.
 	/// </summary>
 	public static class Display {
 

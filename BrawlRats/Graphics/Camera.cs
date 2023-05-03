@@ -11,21 +11,43 @@ using Box2D.NetStandard.Collision;
 using System.Runtime.InteropServices;
 
 namespace BrawlRats.Graphics {
-	
+
 	/// <summary>
-	/// A camera view describes the 
+	/// A camera view is a rectangle defining the area seen by a 'camera' ie. the displayed view.
 	/// </summary>
-	public struct CameraView {
+	public struct CameraView : IEquatable<CameraView> {
 
 		/// <summary>
-		/// The aspect ratio of the camera view
+		/// The aspect ratio of this camera view.
 		/// </summary>
 		public float AspectRatio => Area.Size.X / Area.Size.Y;
 
 		/// <summary>
-		/// The screen area the camera view covers
+		/// The rectangle defining the view of the camera.
 		/// </summary>
 		public Rectf Area;
+
+		/// <summary>
+		/// Creates a new camera view with the given area.
+		/// </summary>
+		/// <param name="area">Camera view area</param>
+		public CameraView(Rectf area) { Area = area; }
+
+		/// <summary>
+		/// Creates a new camera view at the given position with the given size.
+		/// </summary>
+		/// <param name="position">View position</param>
+		/// <param name="size">View size</param>
+		public CameraView(Vector2 position, Vector2 size) { Area = new(position.X, position.Y, size.X, size.Y); }
+
+		/// <summary>
+		/// Creates a new camera view at the given position with the given size.
+		/// </summary>
+		/// <param name="x">View X coordinate</param>
+		/// <param name="y">View Y coordinate</param>
+		/// <param name="width">View width</param>
+		/// <param name="height">View height</param>
+		public CameraView(float x, float y, float width, float height) { Area = new(x, y, width, height); }
 
 		public static implicit operator CameraView(Rectf area) => new() { Area = area };
 		public static implicit operator CameraView(AABB aabb) => new() {
@@ -40,13 +62,12 @@ namespace BrawlRats.Graphics {
 			Matrix4x4.CreateTranslation(c.Area.Position.X, c.Area.Position.Y, 0);
 
 		/// <summary>
-		/// Interpolates between two different camera views based on a scaling factor, where
-		/// 0 corresponds to the first view and 1 corresponds to the second view.
+		/// Interpolates between two different camera views.
 		/// </summary>
-		/// <param name="a">First view to interpolate</param>
-		/// <param name="b">Second view to interpolate</param>
-		/// <param name="alpha">The interpolation factor</param>
-		/// <returns>The interpolated view between the two</returns>
+		/// <param name="a">First camera view</param>
+		/// <param name="b">Second camera view</param>
+		/// <param name="alpha">Alpha factor determining interpolation position</param>
+		/// <returns>Interpolated camera view</returns>
 		public static CameraView Interpolate(CameraView a, CameraView b, float alpha = 0.5f) {
 			return new Rectf() {
 				Position = a.Area.Position.Interpolate(b.Area.Position, alpha),
@@ -55,10 +76,9 @@ namespace BrawlRats.Graphics {
 		}
 
 		/// <summary>
-		/// Adjusts this camera view to fit the given minimum size, centered
-		/// on the original view.
+		/// Adjusts this camera view to fit the required minimum size.
 		/// </summary>
-		/// <param name="minSize">The minimum view size</param>
+		/// <param name="minSize">The required minimum size</param>
 		public void AdjustForMinSize(Vector2 minSize) {
 			if (minSize.X > Area.Size.X) {
 				Area.Position.X -= (minSize.X - Area.Size.X) * 0.5f;
@@ -71,9 +91,11 @@ namespace BrawlRats.Graphics {
 		}
 
 		/// <summary>
-		/// Corrects this camera view to match the given aspect ratio.
+		/// Corrects this camera view to have the requested aspect ratio. If the current
+		/// aspect ratio is larger (wider) than the requested ratio, the height is increased
+		/// to fit the requested ratio, else if it is smaller (taller) the width is increased.
 		/// </summary>
-		/// <param name="ratio">Requested aspect ratio</param>
+		/// <param name="ratio">The requested aspect ratio</param>
 		public void CorrectForAspectRatio(float ratio) {
 			float aspect = AspectRatio;
 			if (aspect > ratio) {
@@ -85,14 +107,35 @@ namespace BrawlRats.Graphics {
 			}
 		}
 
+
+		public bool Equals(CameraView view) =>
+			Area.Position == view.Area.Position &&
+			Area.Size == view.Area.Size;
+
+		public override bool Equals(object obj) => obj is CameraView view && Equals(view);
+
+		public override int GetHashCode() => Area.GetHashCode();
+
+		public static bool operator ==(CameraView v1, CameraView v2) => v1.Equals(v2);
+		public static bool operator !=(CameraView v1, CameraView v2) => !v1.Equals(v2);
+
 	}
 
 	public struct CameraMove {
 
+		/// <summary>
+		/// The target camera view.
+		/// </summary>
 		public CameraView Target;
 
+		/// <summary>
+		/// The remaining amount of time in the pan.
+		/// </summary>
 		public float RemainingTime;
 
+		/// <summary>
+		/// If the pan is done, ie. there is no remaining time left in the pan.
+		/// </summary>
 		public bool IsDone => RemainingTime <= 0;
 
 		public CameraMove(CameraView target, float time) {
@@ -118,6 +161,9 @@ namespace BrawlRats.Graphics {
 
 	}
 
+	/// <summary>
+	/// Enumeration of camera modes.
+	/// </summary>
 	public enum CameraMode {
 		/// <summary>
 		/// The camera does not follow anything automatically, although
@@ -136,12 +182,24 @@ namespace BrawlRats.Graphics {
 
 	public class CameraController {
 
+		/// <summary>
+		/// The required aspect ratio of the final camera view.
+		/// </summary>
 		public float AspectRatio { get; set; }
 
+		/// <summary>
+		/// The required minimum size of the final camera view.
+		/// </summary>
 		public Vector2 MinSize { get; set; }
 
+		/// <summary>
+		/// The current mode of the camerea.
+		/// </summary>
 		public CameraMode Mode { get; set; }
 
+		/// <summary>
+		/// The current camera view.
+		/// </summary>
 		public CameraView CurrentView;
 
 		public CameraMove CurrentMove;
@@ -149,7 +207,12 @@ namespace BrawlRats.Graphics {
 		public Entity? TrackedEntity { get; set; }
 
 		private readonly List<Entity> containedEntities = new();
-		public ICollection<Entity> ContainedEntities => containedEntities;
+
+		/// <summary>
+		/// The panning time that should be used when tracking different entities. Setting this to zero effectively disables
+		/// panning and will immediately snap to the tracked view.
+		/// </summary>
+		public float TrackingPanTime { get; set; } = 0.5f;
 
 		private void UpdateFollow() {
 			CurrentMove.Target = TrackedEntity.Physics.AABB;
@@ -162,6 +225,8 @@ namespace BrawlRats.Graphics {
 		}
 
 		private void UpdateCamera(float delta) {
+			if (Mode != CameraMode.Follow) TrackedEntity = null;
+			else if (Mode != CameraMode.Contain && containedEntities.Count > 0) containedEntities.Clear();
 			switch(Mode) {
 				case CameraMode.Fixed: break;
 				case CameraMode.Follow:

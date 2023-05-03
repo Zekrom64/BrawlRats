@@ -8,6 +8,12 @@ namespace BrawlRats.Content.Choreography {
 
 	public interface IChoreographyAction<S> where S : Scene {
 
+		/// <summary>
+		/// Attemps to step the choreography action forward using the given timestep.
+		/// </summary>
+		/// <param name="scene">The scene to step forward</param>
+		/// <param name="delta">The amount of time to step forward</param>
+		/// <returns>If the choreography action completed</returns>
 		public bool TryStep(S scene, float delta);
 
 	}
