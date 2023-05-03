@@ -18,22 +18,22 @@ namespace BrawlRats.Graphics {
 	/// <summary>
 	/// The display class manages the state of the window the game is rendered to.
 	/// </summary>
-	public static class Display {
+	public class Display : IDisposable {
 
 		/// <summary>
 		/// The display's window system.
 		/// </summary>
-		public static IWindowSystem WindowSystem { get; private set; }
+		public IWindowSystem WindowSystem { get; }
 
 		/// <summary>
 		/// The display's window.
 		/// </summary>
-		public static IWindow Window { get; private set; }
+		public IWindow Window { get; }
 
 		/// <summary>
 		/// The aspect ratio of the display.
 		/// </summary>
-		public static float AspectRatio {
+		public float AspectRatio {
 			get {
 				Vector2i size = Window.Size;
 				return ((float)size.X) / size.Y;
@@ -43,23 +43,18 @@ namespace BrawlRats.Graphics {
 		/// <summary>
 		/// The display's input system.
 		/// </summary>
-		public static IInputSystem InputSystem { get; private set; }
+		public IInputSystem InputSystem { get; }
 
 		/// <summary>
 		/// Initializes the display.
 		/// </summary>
-		public static void Init() {
+		public Display() {
 			// Initialize GLFW
 			SDL2.Init(SDLSubsystems.Video | SDLSubsystems.Joystick | SDLSubsystems.GameController);
 			// Create the window and input systems
 			WindowSystem = new SDLServiceWindowSystem();
 			InputSystem = new SDLServiceInputSystem();
-			// Initialize the window
-			InitWindow();
-		}
 
-		// Initializes the window using the given graphics type
-		private static void InitWindow() {
 			WindowAttributeList attribs = new() {
 				// Not resizable
 				{ WindowAttributes.Resizable, false },
@@ -79,7 +74,7 @@ namespace BrawlRats.Graphics {
 		/// <summary>
 		/// Runs event handling for the display.
 		/// </summary>
-		public static void RunEvents() {
+		public void RunEvents() {
 			// Run events
 			InputSystem.RunEvents();
 			// Sleep for 10 milliseconds
@@ -89,7 +84,8 @@ namespace BrawlRats.Graphics {
 		/// <summary>
 		/// Deinitializes the display.
 		/// </summary>
-		public static void Deinit() {
+		public void Dispose() {
+			GC.SuppressFinalize(this);
 			Window.Dispose();
 			SDL2.Quit();
 		}

@@ -17,20 +17,18 @@ namespace BrawlRats {
 
 		public static void Main(string[] args) {
 			Log.Print($"Startup @{DateTime.Now}");
+
 			// Initialize the display
-			Display.Init();
+			using Display disp = new();
 
 			// Make the window visible
-			Display.Window.Visible = true;
+			disp.Window.Visible = true;
 
 			// While running
 			while(Running) {
 				// Run event handling
-				Display.RunEvents();
+				disp.RunEvents();
 			}
-
-			// Deinitialize the display
-			Display.Deinit();
 		}
 
 	}

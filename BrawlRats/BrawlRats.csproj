@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\box2d-netstandard\src\box2dx\Box2D.NetStandard\Box2D.NetStandard.csproj" />
     <ProjectReference Include="..\TesseractEngine\TesseractEngine-Core\TesseractEngine-Core.csproj" />
     <ProjectReference Include="..\TesseractEngine\TesseractEngine-GL\TesseractEngine-GL.csproj" />
     <ProjectReference Include="..\TesseractEngine\TesseractEngine-SDL2-OpenGL\TesseractEngine-SDL2-OpenGL.csproj" />
@@ -29,10 +30,6 @@
 
   <ItemGroup>
     <Folder Include="Content\Characters\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Box2D.NetStandard" Version="2.4.7-alpha" />
   </ItemGroup>
 
 </Project>

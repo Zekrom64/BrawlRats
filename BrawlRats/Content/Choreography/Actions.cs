@@ -44,15 +44,15 @@ namespace BrawlRats.Content.Choreography {
 
 		public float Accumulator { get; set; } = 0;
 
-		public Predicate<S> BreakCondition { get; }
+		public Predicate<S>? BreakCondition { get; }
 
-		public WaitFor(float seconds, Predicate<S> breakCond = null) {
+		public WaitFor(float seconds, Predicate<S>? breakCond = null) {
 			Delay = seconds;
 			BreakCondition = breakCond;
 		}
 
 		public bool TryStep(S scene, float delta) {
-			if ((BreakCondition?.Invoke(scene)).GetValueOrDefault(false)) return true;
+			if (BreakCondition?.Invoke(scene) ?? false) return true;
 			Accumulator += delta;
 			return Accumulator >= Delay;
 		}
@@ -62,7 +62,7 @@ namespace BrawlRats.Content.Choreography {
 	public class Sequence<S> : IChoreographyAction<S> where S : Scene {
 
 		private readonly IEnumerator<IChoreographyAction<S>> actions;
-		private IChoreographyAction<S> current;
+		private IChoreographyAction<S>? current;
 
 		public Sequence(IEnumerator<IChoreographyAction<S>> actions) {
 			this.actions = actions;

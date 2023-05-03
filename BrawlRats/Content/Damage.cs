@@ -121,7 +121,7 @@ namespace BrawlRats.Content {
 		public bool IsDead => Health == 0;
 
 
-		private Dictionary<DamageType, float> dmgmods = null;
+		private Dictionary<DamageType, float>? dmgmods = null;
 		/// <summary>
 		/// The set of damage modifiers indexed by damage type.
 		/// </summary>

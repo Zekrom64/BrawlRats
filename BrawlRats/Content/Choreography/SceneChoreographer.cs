@@ -31,7 +31,7 @@ namespace BrawlRats.Content.Choreography {
 	public abstract class SceneChoreographer<S> : ISceneChoreographer where S : Scene {
 
 		private readonly IEnumerator<IChoreographyAction<S>> actions;
-		private IChoreographyAction<S> currentAction;
+		private IChoreographyAction<S>? currentAction;
 
 		/// <summary>
 		/// If the choreographer is finished, indicating the scene has ended.

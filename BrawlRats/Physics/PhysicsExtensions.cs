@@ -10,14 +10,6 @@ namespace BrawlRats.Physics {
 	public static class PhysicsExtensions {
 
 		/// <summary>
-		/// Combines two bounding boxes together, producing a bounding box that holds both.
-		/// </summary>
-		/// <param name="a">First bounding box</param>
-		/// <param name="b">Second bounding box</param>
-		/// <returns>Combined bounding box</returns>
-		public static AABB Combine(this AABB a, AABB b) => new(a.LowerBound.Min(b.LowerBound), a.UpperBound.Max(b.UpperBound));
-
-		/// <summary>
 		/// Offsets this AABB by the given amount.
 		/// </summary>
 		/// <param name="aabb">AABB</param>

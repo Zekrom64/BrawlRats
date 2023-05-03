@@ -70,16 +70,16 @@ namespace BrawlRats.Physics {
 		public float Friction = 1.0f;
 
 		public static implicit operator FixtureDef(PhysicsFixtureDef def) => new() {
-			density = def.Density,
-			filter = new() {
+			Density = def.Density,
+			Filter = new() {
 				categoryBits = (ushort)def.CollisionCategory,
 				maskBits = (ushort)def.CollisionMask,
 				groupIndex = (short)def.CollisionGroup
 			},
-			isSensor = def.IsSensor,
-			restitution = def.Restitution,
-			shape = def.Shape,
-			friction = def.Friction
+			IsSensor = def.IsSensor,
+			Restitution = def.Restitution,
+			Shape = def.Shape,
+			Friction = def.Friction
 		};
 
 	}
@@ -170,19 +170,19 @@ namespace BrawlRats.Physics {
 		public ICollidable<HurtboxInfo>? Hurtboxes = null;
 
 		public static implicit operator BodyDef(PhysicsBodyDef def) => new() {
-			angle = def.InitialAngle,
-			angularDamping = def.AngularDampening,
-			angularVelocity = def.InitialAngularVelocity,
-			type = def.BodyType,
-			bullet = def.IsBullet,
-			fixedRotation = def.HasFixedRotation,
-			linearDamping = def.LinearDampening,
-			linearVelocity = def.InitialVelocity,
-			position = def.InitialPosition,
-			enabled = def.Enabled,
-			allowSleep = def.AllowSleep,
-			awake = def.Awake,
-			gravityScale = def.GravityScale
+			Angle = def.InitialAngle,
+			AngularDamping = def.AngularDampening,
+			AngularVelocity = def.InitialAngularVelocity,
+			Type = def.BodyType,
+			Bullet = def.IsBullet,
+			FixedRotation = def.HasFixedRotation,
+			LinearDamping = def.LinearDampening,
+			LinearVelocity = def.InitialVelocity,
+			Position = def.InitialPosition,
+			Enabled = def.Enabled,
+			AllowSleep = def.AllowSleep,
+			Awake = def.Awake,
+			GravityScale = def.GravityScale
 		};
 
 	}
@@ -680,15 +680,15 @@ namespace BrawlRats.Physics {
 		}
 
 		public override void BeginContact(in Contact contact) {
-			PhysicsBody body1 = (PhysicsBody)contact.FixtureA.Body.UserData;
-			PhysicsBody body2 = (PhysicsBody)contact.FixtureB.Body.UserData;
+			PhysicsBody body1 = (PhysicsBody?)contact.FixtureA.Body.UserData ?? throw new InvalidOperationException();
+			PhysicsBody body2 = (PhysicsBody?)contact.FixtureB.Body.UserData ?? throw new InvalidOperationException();
 			body1.Controller.OnCollision(body2.Controller);
 			body2.Controller.OnCollision(body1.Controller);
 		}
 
 		public override void EndContact(in Contact contact) {
-			PhysicsBody body1 = (PhysicsBody)contact.FixtureA.Body.UserData;
-			PhysicsBody body2 = (PhysicsBody)contact.FixtureB.Body.UserData;
+			PhysicsBody body1 = (PhysicsBody?)contact.FixtureA.Body.UserData ?? throw new InvalidOperationException();
+			PhysicsBody body2 = (PhysicsBody?)contact.FixtureB.Body.UserData ?? throw new InvalidOperationException();
 			body1.Controller.OnStopCollision(body2.Controller);
 			body2.Controller.OnStopCollision(body1.Controller);
 		}
